@@ -1,0 +1,40 @@
+services:
+  deployment-server:
+    container_name: deployment-server
+    build:
+      context: ./deploymentServer
+    image: deployment-server:latest
+    volumes:
+      - app-nginx-config:/etc/nginx
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app-network
+
+  traffic-controller:
+    container_name: traffic-controller
+    image: nginx:latest
+    depends_on:
+      deployment-server:
+        condition: service_healthy
+    volumes:
+      - app-nginx-config:/etc/nginx
+    ports:
+      - 80:80
+    networks:
+      - app-network
+
+  backend-primary:
+    container_name: backend-primary
+    build:
+      context: ./microServer
+    image: micro-server:latest
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: app-network
+    driver: bridge
+
+volumes:
+  app-nginx-config:
