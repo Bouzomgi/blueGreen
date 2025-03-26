@@ -10,7 +10,7 @@ To stand up the application, run
 
 This will stand up a webserver container from a docker image generated from the `microServer` folder.
 
-The application is now in a stable state -- hit the webserver using `curl http://localhost/` and interact with it however you'd like.
+The application is now in a stable state -- interact with the webserver using `curl http://localhost/`.
 
 ### General Workflow
 
