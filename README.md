@@ -1,59 +1,118 @@
-# Blue Green Deployments
+# Blue-Green Deployments
 
-An implementation of blue green deployments using Docker, Nginx, Jinja2, and Ansible.
+An implementation of Blue-Green deployments using Docker, Nginx, Jinja2, and Ansible.
 
-## Instructions to Run
+## 🚀 Instructions to Run
 
-To stand up the application, run
+To start the application, run:
 
 `docker compose up`
 
-This will stand up a webserver container from a docker image generated from the `microServer` folder.
+This will spin up the required containers, including a web server based on the Docker image generated from the microServer folder.
 
-The application is now in a stable state -- interact with the webserver using `curl http://localhost/`.
+Once running, the application is in a stable state. You can interact with the web server by running:
 
-### General Workflow
+`curl http://localhost/`
 
-- Publish new image for deployment
-- Stand up new green using `/deployment/deployGreen`
-- Run integration tests against green through the `/test` route
-  - If integration tests pass, call `/deployment/switchTraffic` to swap blue and green
-  - If integration tests fail, call `/deployment/destroyGreen` to tear down the current green
+## 🔥 General Workflow
 
-### Stand Up Green
+- Publish a new image for deployment
+- Stand up a green environment by calling via `/deployment/deployGreen`
+- Run integration tests against the green environment by hitting the `/test` route
+  - If tests pass, switch traffic via `deployment/switchTraffic`
+  - If tests fail, destroy the green environment via `/deployment/destroyGreen`
 
-To create a new green environment of `microServer`, first modify `/microServer/index.js` (perhaps most simply by tweaking the `/` routes' response message) and create a new image using `docker build -t micro-server ./microServer`. Now stand up the environment by hitting `curl http://localhost/deployment/deployGreen`. This will create a container from the latest version of micro-server.
+## ⚙️ Detailed Workflow
 
-Access this green environment on the `/test` route. For example, `curl http://localhost/test/` will hit the `/` route on the green environment. You should see your altered response message here.
+### ✅ Stand Up Green
 
-The blue environment should be unchanged. The response from `curl http://localhost/` should stay the same as the call from before.
+To create a green environment for microServer:
 
-In practice, the user can now run integration tests against the `/test` route to ensure no regression has occurred.
+1. Modify `/microServer/index.js` (e.g., change the `/` route's response message)
 
-### Switch Traffic
+2. Build a new Docker image:
 
-If integration tests have passed, we are comfortable to replace the current blue environment with green, and designate the green environment as the new blue.
+`docker build -t micro-server ./microServer`
 
-To flip traffic from the blue environment to the green, invoke `curl http://localhost/deployment/switchTraffic`. This effectively turns the green environment to blue. It automatically destroys the previous blue deployment and eliminates the `/test` route.
+1. Stand up the green using step 2's image
 
-Now, invoking `curl http://localhost/` should show the altered response message.
+`curl http://localhost/deployment/deployGreen`
 
-### Destroy Green
+The green environment will be accessible on the /test route.
 
-If integration tests have failed, we know a regression has been introduced and our green environment is not ready to be promoted to blue. The green environment should then be decommissioned.
+`curl http://localhost/test`
 
-To delete the green environment, invoke `curl http://localhost/deployment/destroyGreen`. This will destroy the green container and eliminate the `/test` route.
+This will hit the `/` route on the green environment, where you should see the modified response message.
 
-## Features
+The blue environment will remain unchanged:
 
-- can specify the new image-to-deploy's tag (defaulting to `latest`) using the url argument `/deployGreen?tag={YOUR_TAG_VALUE}`
-- can specify an optional environment variable `AUTH_TOKEN` on the deployment server, which will require any requests on the route `/deployment` to include a matching Bearer token. If this environment variable is not set, no authorization token will be necessary to access the `/deployment` routes
+`curl http://localhost/`
 
-## Technologies
+You should still see the original response message.
 
-This implementation uses
+💡 In practice, you can now run integration tests against the green environment via /test to verify the new deployment.
 
-- Docker to run each environment
-- Nginx to route web traffic between the environments and the deployment server
-- Jinja2 to generate new Nginx configuration files via a template
-- Ansible to trigger the Jinja2 nginx config generation
+Depending on if you intend to promote green to blue or not, you can proceed with step 2 or 3
+
+### 🔄 2. Switch Traffic
+
+If integration tests pass, you can promote the green environment to blue by invoking:
+
+`curl http://localhost/deployment/switchTraffic`
+
+This will:
+
+- Swap traffic from the blue environment to the green environment
+- Promote green to blue
+- Destroy the previous blue deployment
+- Remove the `/test` route
+
+Now, when you access:
+
+`curl http://localhost/`
+
+You should see the updated response message from the new environment.
+
+### 🗑️ 3. Destroy Green
+
+If the green environment introduces a regression or fails tests, you can remove it by calling:
+
+`curl http://localhost/deployment/destroyGreen`
+
+This will:
+
+- Tear down the green environment
+- Remove the /test route
+- Keep the current blue environment unaffected
+
+## 🔧 Features
+
+- Custom image tags:
+  You can specify a custom tag for the new image during green deployment:
+  `curl "http://localhost/deployment/deployGreen?tag={YOUR_TAG}"`
+  If no tag is specified, it defaults to latest.
+
+- Authentication (optional):
+  You can specify an environment variable AUTH_TOKEN on the deployment server.
+  If this is set, any request to the /deployment routes will require a valid Bearer token.
+
+  Without AUTH_TOKEN:
+  `curl http://localhost/deployment/deployGreen`
+
+  With AUTH_TOKEN set:
+  `curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost/deployment/deployGreen`
+
+## 🛠️ Technologies Used
+
+- Docker: To run isolated environments in containers
+- Nginx: To route web traffic between the environments and the deployment server
+- Jinja2: To generate dynamic Nginx configuration files from a template
+- Ansible: To render the Jinja2 templates to generate new Nginx configs
+
+## 🧹 Cleanup Instructions
+
+To stop and remove all containers, networks, and volumes specified in the docker compose, run:
+
+`docker compose down --volumes --remove-orphans`
+
+Additionally, you may need to manually remove any webserver containers created by invoking `/deployment/deployGreen`.
