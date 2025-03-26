@@ -16,7 +16,7 @@ The application is now in a stable state -- interact with the webserver using `c
 
 - Publish new image for deployment
 - Stand up new green using `/deployment/deployGreen`
-- Run integration tests against green using the `/test` route
+- Run integration tests against green through the `/test` route
   - If integration tests pass, call `/deployment/switchTraffic` to swap blue and green
   - If integration tests fail, call `/deployment/destroyGreen` to tear down the current green
 
@@ -47,7 +47,7 @@ To delete the green environment, invoke `curl http://localhost/deployment/destro
 ## Features
 
 - can specify the new image-to-deploy's tag (defaulting to `latest`) using the url argument `/deployGreen?tag={YOUR_TAG_VALUE}`
-- can specify an optional environment variable `AUTH_TOKEN` on the deployment server, which will require any requests on the route `/deployment` to include a matching Bearer token. If this environment variable is not set, no authorization token will be necessary to access `/deployment` routes
+- can specify an optional environment variable `AUTH_TOKEN` on the deployment server, which will require any requests on the route `/deployment` to include a matching Bearer token. If this environment variable is not set, no authorization token will be necessary to access the `/deployment` routes
 
 ## Technologies
 
