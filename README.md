@@ -22,7 +22,7 @@ The application is now in a stable state -- interact with the webserver using `c
 
 ### Stand Up Green
 
-To create a new green environment of `microServer`, first modify `/microServer/index.js` (perhaps most simply by tweaking the `/` routes' response message) and create a new image using `docker build -t micro-server .`. Now stand up the environment by hitting `curl http://localhost/deployment/deployGreen`. This will create a container from the latest version of micro-server.
+To create a new green environment of `microServer`, first modify `/microServer/index.js` (perhaps most simply by tweaking the `/` routes' response message) and create a new image using `docker build -t micro-server ./microServer`. Now stand up the environment by hitting `curl http://localhost/deployment/deployGreen`. This will create a container from the latest version of micro-server.
 
 Access this green environment on the `/test` route. For example, `curl http://localhost/test/` will hit the `/` route on the green environment. You should see your altered response message here.
 
