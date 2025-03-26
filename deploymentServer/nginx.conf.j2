@@ -26,10 +26,10 @@ http {
 
     # Redirect all traffic to the web server on port 8000
     location / {
-        {% if blue_env == 'primary' %}
-        proxy_pass http://backend-primary:8000; #blue
+        {% if blue_env == 'alpha' %}
+        proxy_pass http://backend-alpha:8000; #blue
         {% else %}
-        proxy_pass http://backend-secondary:8000; #blue
+        proxy_pass http://backend-omega:8000; #blue
         {% endif %}
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -41,11 +41,11 @@ http {
     location /test {
         # Remove the /test prefix from the URL
         rewrite ^/test(/.*)$ $1 break;
-        
-        {% if blue_env == 'primary' %}
-        proxy_pass http://backend-secondary:8000;
+
+        {% if blue_env == 'alpha' %}
+        proxy_pass http://backend-omega:8000;
         {% else %}
-        proxy_pass http://backend-primary:8000;
+        proxy_pass http://backend-alpha:8000;
         {% endif %}
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

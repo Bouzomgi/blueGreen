@@ -23,8 +23,8 @@ services:
     networks:
       - app-network
 
-  backend-primary:
-    container_name: backend-primary
+  backend-alpha:
+    container_name: backend-alpha
     build:
       context: ./microServer
     image: micro-server:latest

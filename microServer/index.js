@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 8000;
 
 // Health check route
 app.get("/", (req, res) => {
-  res.status(200).send("Welcome to the micro server version 3");
+  res.status(200).send("Welcome to the micro server version 1");
 });
 
 // Start the server

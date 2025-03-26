@@ -9,12 +9,12 @@ const findCurrentBlue = async (filePath) => {
     const blueLine = lines.find((line) => line.includes("#blue"));
 
     if (blueLine) {
-      if (blueLine.toLowerCase().includes("primary")) {
-        console.log("Current blue environment is primary");
-        return "primary";
-      } else if (blueLine.toLowerCase().includes("secondary")) {
-        console.log("Current blue environment is secondary");
-        return "secondary";
+      if (blueLine.toLowerCase().includes("alpha")) {
+        console.log("Current blue environment is alpha");
+        return "alpha";
+      } else if (blueLine.toLowerCase().includes("omega")) {
+        console.log("Current blue environment is omega");
+        return "omega";
       } else {
         throw new Error("unexpected nginx config");
       }
@@ -27,12 +27,12 @@ const findCurrentBlue = async (filePath) => {
 };
 
 const getAlternateEnv = (env) => {
-  if (env == "primary") {
-    console.log("Alternate environment is secondary");
-    return "secondary";
-  } else if (env == "secondary") {
-    console.log("Alternate environment is primary");
-    return "primary";
+  if (env == "alpha") {
+    console.log("Alternate environment is omega");
+    return "omega";
+  } else if (env == "omega") {
+    console.log("Alternate environment is alpha");
+    return "alpha";
   } else {
     throw new Error(`unexpected env name with ${env}`);
   }

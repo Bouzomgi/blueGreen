@@ -1,11 +1,11 @@
 const Docker = require("dockerode");
 const docker = new Docker();
 
-const runDockerContainer = (imageName, containerName, networkName) => {
+const createDockerContainer = (imageName, tag, containerName, networkName) => {
   return new Promise((resolve, reject) => {
     docker
       .createContainer({
-        Image: `${imageName}:latest`,
+        Image: `${imageName}:${tag}`,
         name: containerName,
         Tty: true,
         AttachStdin: false,
@@ -93,8 +93,24 @@ function restartNginx() {
   });
 }
 
+const doesContainerExist = async (containerName) => {
+  try {
+    const containers = await docker.listContainers({ all: true });
+
+    const exists = containers.some((container) =>
+      container.Names.includes(`/${containerName}`)
+    );
+
+    console.log(`${containerName} does ${exists ? "" : "not"}exist`);
+    return exists;
+  } catch (error) {
+    throw new Error(`Error checking container: ${error.message}`);
+  }
+};
+
 module.exports = {
-  runDockerContainer,
+  createDockerContainer,
   destroyDockerContainer,
   restartNginx,
+  doesContainerExist,
 };
