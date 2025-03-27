@@ -90,16 +90,16 @@ curl "http://localhost/deployment/deployGreen?tag={YOUR_TAG}"
 
 ### 🔒 Authentication (optional)
 
-You can specify an environment variable AUTH_TOKEN on the deployment server.
+You can specify an environment variable `AUTH_TOKEN` on the deployment server.
 If this is set, any request to the `/deployment` routes will require a valid Bearer token.
 
-Without AUTH_TOKEN:
+Without `AUTH_TOKEN`:
 
 ```bash
 curl http://localhost/deployment/deployGreen
 ```
 
-With AUTH_TOKEN set:
+With `AUTH_TOKEN` set:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost/deployment/deployGreen
