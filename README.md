@@ -64,7 +64,7 @@ Now, when you access `curl http://localhost/`, you should see the updated respon
 
 ### 🗑️ 3. Destroy Green
 
-If the green environment introduces a regression or fails tests, you can remove it by calling
+If the green environment introduces a regression, you can remove it by calling
 
 ```bash
 curl http://localhost/deployment/destroyGreen
