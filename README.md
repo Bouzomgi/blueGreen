@@ -27,9 +27,7 @@ To create a green environment for microServer once the application is running
 
 1. Modify `/microServer/index.js` (e.g., change the `/` route's response message)
 
-2. Build a new Docker image using
-
-   `docker build -t micro-server ./microServer`
+2. Build a new Docker image using `docker build -t micro-server ./microServer`
 
 3. Stand up green using step 2's image via `curl http://localhost/deployment/deployGreen`
    - `deployGreen` automatically bases the green environment based on the latest image of `micro-server`
