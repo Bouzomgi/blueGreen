@@ -4,82 +4,75 @@ An implementation of Blue-Green deployments using Docker, Nginx, Jinja2, and Ans
 
 ## 🚀 Instructions to Run
 
-To start the application, run:
+To start the application, run `docker compose up`
 
-`docker compose up`
+This will spin up the required containers, including a web server based on the Docker image generated from the microServer folder. This web server is brought up in a container considered the first blue environment.
 
-This will spin up the required containers, including a web server based on the Docker image generated from the microServer folder.
+Once running, the application is in a stable state. You can interact with the web server by running `curl http://localhost/`
 
-Once running, the application is in a stable state. You can interact with the web server by running:
+## 🔁 General Workflow
 
-`curl http://localhost/`
-
-## 🔥 General Workflow
-
+- Start the application
 - Publish a new image for deployment
 - Stand up a green environment by calling via `/deployment/deployGreen`
 - Run integration tests against the green environment by hitting the `/test` route
-  - If tests pass, switch traffic via `deployment/switchTraffic`
-  - If tests fail, destroy the green environment via `/deployment/destroyGreen`
+  - ✅ If tests pass → switch traffic via /deployment/switchTraffic
+  - ❌ If tests fail → destroy the green environment via /deployment/destroyGreen
 
 ## ⚙️ Detailed Workflow
 
-### ✅ Stand Up Green
+### 🌱 Stand Up Green
 
-To create a green environment for microServer:
+To create a green environment for microServer once the application is running
 
 1. Modify `/microServer/index.js` (e.g., change the `/` route's response message)
 
-2. Build a new Docker image:
+2. Build a new Docker image using
 
-`docker build -t micro-server ./microServer`
+   `docker build -t micro-server ./microServer`
 
-1. Stand up the green using step 2's image
+3. Stand up green using step 2's image via `curl http://localhost/deployment/deployGreen`
+   - `deployGreen` automatically bases the green environment based on the latest image of `micro-server`
 
-`curl http://localhost/deployment/deployGreen`
+🟢 The green environment will be accessible on the `/test` route
 
-The green environment will be accessible on the /test route.
+- `curl http://localhost/test` will hit the `/` route on the green environment, where you should see the modified response message.
 
-`curl http://localhost/test`
+🔵 The blue environment will remain unchanged
 
-This will hit the `/` route on the green environment, where you should see the modified response message.
+- `curl http://localhost/`
+  should still show the original response message.
 
-The blue environment will remain unchanged:
+💡 In practice, you can now run (not included) integration tests against the green environment via `/test` to verify the new deployment
 
-`curl http://localhost/`
+Depending on if you intend to promote green to blue or not, you can proceed to either step 2 or 3
 
-You should still see the original response message.
+### 🔀 2. Switch Traffic
 
-💡 In practice, you can now run integration tests against the green environment via /test to verify the new deployment.
+If integration tests pass, you can promote the green environment to blue by invoking
 
-Depending on if you intend to promote green to blue or not, you can proceed with step 2 or 3
+```bash
+curl http://localhost/deployment/switchTraffic
+```
 
-### 🔄 2. Switch Traffic
-
-If integration tests pass, you can promote the green environment to blue by invoking:
-
-`curl http://localhost/deployment/switchTraffic`
-
-This will:
+This will
 
 - Swap traffic from the blue environment to the green environment
 - Promote green to blue
 - Destroy the previous blue deployment
 - Remove the `/test` route
 
-Now, when you access:
-
-`curl http://localhost/`
-
-You should see the updated response message from the new environment.
+Now, when you access `curl http://localhost/`, you should see the updated response message from the new environment
 
 ### 🗑️ 3. Destroy Green
 
-If the green environment introduces a regression or fails tests, you can remove it by calling:
+If the green environment introduces a regression or fails tests, you can remove it by calling
 
-`curl http://localhost/deployment/destroyGreen`
+```bash
+curl http://localhost/deployment/destroyGreen
+```
 
-This will:
+This will
 
 - Tear down the green environment
 - Remove the /test route
@@ -87,20 +80,32 @@ This will:
 
 ## 🔧 Features
 
-- Custom image tags:
-  You can specify a custom tag for the new image during green deployment:
-  `curl "http://localhost/deployment/deployGreen?tag={YOUR_TAG}"`
-  If no tag is specified, it defaults to latest.
+### 🏷️ Custom image tags
 
-- Authentication (optional):
-  You can specify an environment variable AUTH_TOKEN on the deployment server.
-  If this is set, any request to the /deployment routes will require a valid Bearer token.
+You can specify a custom tag for the new image during green deployment:
 
-  Without AUTH_TOKEN:
-  `curl http://localhost/deployment/deployGreen`
+```bash
+curl "http://localhost/deployment/deployGreen?tag={YOUR_TAG}"
+```
 
-  With AUTH_TOKEN set:
-  `curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost/deployment/deployGreen`
+- If no tag is specified, it defaults to latest.
+
+### 🔒 Authentication (optional)
+
+You can specify an environment variable AUTH_TOKEN on the deployment server.
+If this is set, any request to the `/deployment` routes will require a valid Bearer token.
+
+Without AUTH_TOKEN:
+
+```bash
+curl http://localhost/deployment/deployGreen
+```
+
+With AUTH_TOKEN set:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost/deployment/deployGreen
+```
 
 ## 🛠️ Technologies Used
 
@@ -111,8 +116,7 @@ This will:
 
 ## 🧹 Cleanup Instructions
 
-To stop and remove all containers, networks, and volumes specified in the docker compose, run:
-
+To stop and remove all containers, networks, and volumes specified in the docker compose, run
 `docker compose down --volumes --remove-orphans`
 
-Additionally, you may need to manually remove any webserver containers created by invoking `/deployment/deployGreen`.
+Additionally, you may need to manually remove any webserver containers created by invoking `/deployment/deployGreen`
