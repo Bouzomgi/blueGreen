@@ -21,7 +21,7 @@ Once running, the application is in a stable state. You can interact with the we
 
 ## ⚙️ Detailed Workflow
 
-### 🌱 Stand Up Green
+### 🌱 1. Stand Up Green
 
 To create a green environment for microServer once the application is running
 
