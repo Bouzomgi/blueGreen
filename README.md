@@ -16,8 +16,8 @@ Once running, the application is in a stable state. You can interact with the we
 - Publish a new image for deployment
 - Stand up a green environment by calling via `/deployment/deployGreen`
 - Run integration tests against the green environment by hitting the `/test` route
-  - ✅ If tests pass → switch traffic via /deployment/switchTraffic
-  - ❌ If tests fail → destroy the green environment via /deployment/destroyGreen
+  - ✅ If tests pass → switch traffic via `/deployment/switchTraffic`
+  - ❌ If tests fail → destroy the green environment via `/deployment/destroyGreen`
 
 ## ⚙️ Detailed Workflow
 
