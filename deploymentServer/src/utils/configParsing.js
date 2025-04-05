@@ -1,25 +1,25 @@
 const fs = require("fs").promises;
 
-const findCurrentBlue = async (filePath) => {
+const findCurrentRed = async (filePath) => {
   try {
     const data = await fs.readFile(filePath, "utf8");
     const lines = data.split("\n");
 
-    // Find the line containing #blue
-    const blueLine = lines.find((line) => line.includes("#blue"));
+    // Find the line containing #red
+    const redLine = lines.find((line) => line.includes("#red"));
 
-    if (blueLine) {
-      if (blueLine.toLowerCase().includes("alpha")) {
-        console.log("Current blue environment is alpha");
+    if (redLine) {
+      if (redLine.toLowerCase().includes("alpha")) {
+        console.log("Current red environment is alpha");
         return "alpha";
-      } else if (blueLine.toLowerCase().includes("omega")) {
-        console.log("Current blue environment is omega");
+      } else if (redLine.toLowerCase().includes("omega")) {
+        console.log("Current red environment is omega");
         return "omega";
       } else {
         throw new Error("unexpected nginx config");
       }
     } else {
-      throw new Error("could not find blue env line");
+      throw new Error("could not find red env line");
     }
   } catch (err) {
     throw new Error("could not read file");
@@ -52,7 +52,7 @@ const findTestRoute = async (filePath) => {
 };
 
 module.exports = {
-  findCurrentBlue,
+  findCurrentRed,
   getAlternateEnv,
   findTestRoute,
 };

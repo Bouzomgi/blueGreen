@@ -1,7 +1,7 @@
 const express = require("express");
 const { authenticateToken } = require("./authenticateToken");
 
-const { findCurrentBlue, getAlternateEnv } = require("./utils/configParsing");
+const { findCurrentRed, getAlternateEnv } = require("./utils/configParsing");
 
 const {
   createDockerContainer,
@@ -29,56 +29,56 @@ if (process.env.AUTH_TOKEN != undefined) {
 }
 
 // stand up new test env
-app.get("/deployment/deployGreen", async (req, res) => {
+app.get("/deployment/deployBlack", async (req, res) => {
   try {
     const tag = req.query.tag || "latest";
 
-    const currentBlue = await findCurrentBlue(nginxRoute);
-    const currentGreen = getAlternateEnv(currentBlue);
-    const greenContainerName = `backend-${currentGreen}`;
+    const currentRed = await findCurrentRed(nginxRoute);
+    const currentBlack = getAlternateEnv(currentRed);
+    const blackContainerName = `backend-${currentBlack}`;
 
-    const doesGreenExist = await doesContainerExist(greenContainerName);
-    if (doesGreenExist) {
+    const doesBlackExist = await doesContainerExist(blackContainerName);
+    if (doesBlackExist) {
       return res
         .status(400)
-        .send("Cannot stand up green -- Green is already up");
+        .send("Cannot stand up black -- Black is already up");
     }
 
     await createDockerContainer(
       imageName,
       tag,
-      greenContainerName,
+      blackContainerName,
       networkName
     );
-    await runAnsiblePlaybook(currentBlue, true);
+    await runAnsiblePlaybook(currentRed, true);
     await restartNginx();
 
-    return res.status(200).send("Successfully set up green environment");
+    return res.status(200).send("Successfully set up black environment");
   } catch (err) {
     return res
       .status(400)
-      .send(`Failed to set up green environment: ${err.message}`);
+      .send(`Failed to set up black environment: ${err.message}`);
   }
 });
 
-// switch traffic from current env to next and destroy green env
+// switch traffic from current env to next and destroy black env
 app.get("/deployment/switchTraffic", async (req, res) => {
   try {
-    const currentBlue = await findCurrentBlue(nginxRoute);
-    const currentGreen = getAlternateEnv(currentBlue);
+    const currentRed = await findCurrentRed(nginxRoute);
+    const currentBlack = getAlternateEnv(currentRed);
 
-    const blueContainerName = `backend-${currentBlue}`;
-    const greenContainerName = `backend-${currentGreen}`;
+    const redContainerName = `backend-${currentRed}`;
+    const blackContainerName = `backend-${currentBlack}`;
 
-    const doesGreenExist = await doesContainerExist(greenContainerName);
-    if (!doesGreenExist) {
-      return res.status(400).send("Cannot switch traffic -- Green is not up");
+    const doesBlackExist = await doesContainerExist(blackContainerName);
+    if (!doesBlackExist) {
+      return res.status(400).send("Cannot switch traffic -- Black is not up");
     }
 
-    await runAnsiblePlaybook(currentGreen, false);
+    await runAnsiblePlaybook(currentBlack, false);
     await restartNginx();
-    // blue is now the new green
-    await destroyDockerContainer(blueContainerName);
+    // red is now the new black
+    await destroyDockerContainer(redContainerName);
 
     return res.status(200).send("Successfully switched traffic");
   } catch (err) {
@@ -86,25 +86,25 @@ app.get("/deployment/switchTraffic", async (req, res) => {
   }
 });
 
-// destroy green env
-app.get("/deployment/destroyGreen", async (req, res) => {
+// destroy black env
+app.get("/deployment/destroyBlack", async (req, res) => {
   try {
-    const currentBlue = await findCurrentBlue(nginxRoute);
-    const currentGreen = getAlternateEnv(currentBlue);
-    const greenContainerName = `backend-${currentGreen}`;
+    const currentRed = await findCurrentRed(nginxRoute);
+    const currentBlack = getAlternateEnv(currentRed);
+    const blackContainerName = `backend-${currentBlack}`;
 
-    const doesGreenExist = await doesContainerExist(greenContainerName);
-    if (!doesGreenExist) {
-      return res.status(400).send("Cannot destroy green -- Green is not up");
+    const doesBlackExist = await doesContainerExist(blackContainerName);
+    if (!doesBlackExist) {
+      return res.status(400).send("Cannot destroy black -- Black is not up");
     }
 
-    await runAnsiblePlaybook(currentBlue, false);
+    await runAnsiblePlaybook(currentRed, false);
     await restartNginx();
-    await destroyDockerContainer(greenContainerName);
+    await destroyDockerContainer(blackContainerName);
 
-    return res.status(200).send("Successfully destroyed green");
+    return res.status(200).send("Successfully destroyed black");
   } catch (err) {
-    return res.status(400).send(`Failed to destroy green: ${err.message}`);
+    return res.status(400).send(`Failed to destroy black: ${err.message}`);
   }
 });
 

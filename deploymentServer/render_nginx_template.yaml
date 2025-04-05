@@ -2,11 +2,11 @@
 - name: Render Jinja template
   hosts: localhost
   tasks:
-    - name: Assert that blue_env is provided
+    - name: Assert that red_env is provided
       assert:
         that:
-          - blue_env is defined
-        fail_msg: "The blue_env variable must be provided!"
+          - red_env is defined
+        fail_msg: "The red_env variable must be provided!"
     - name: Assert that enable_test_route is provided
       assert:
         that:
