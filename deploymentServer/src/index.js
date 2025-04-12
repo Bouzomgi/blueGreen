@@ -15,7 +15,7 @@ const { runAnsiblePlaybook } = require("./utils/ansible");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-const nginxRoute = "/etc/nginx/nginx.conf";
+const nginxBackendFilePath = "/etc/nginx/conf.d/backend.conf";
 const imageName = "micro-server";
 const networkName = "app-network";
 
@@ -33,7 +33,7 @@ app.get("/deployment/deployBlack", async (req, res) => {
   try {
     const tag = req.query.tag || "latest";
 
-    const currentRed = await findCurrentRed(nginxRoute);
+    const currentRed = await findCurrentRed(nginxBackendFilePath);
     const currentBlack = getAlternateEnv(currentRed);
     const blackContainerName = `backend-${currentBlack}`;
 
@@ -64,7 +64,7 @@ app.get("/deployment/deployBlack", async (req, res) => {
 // switch traffic from current env to next and destroy black env
 app.get("/deployment/switchTraffic", async (req, res) => {
   try {
-    const currentRed = await findCurrentRed(nginxRoute);
+    const currentRed = await findCurrentRed(nginxBackendFilePath);
     const currentBlack = getAlternateEnv(currentRed);
 
     const redContainerName = `backend-${currentRed}`;
@@ -89,7 +89,7 @@ app.get("/deployment/switchTraffic", async (req, res) => {
 // destroy black env
 app.get("/deployment/destroyBlack", async (req, res) => {
   try {
-    const currentRed = await findCurrentRed(nginxRoute);
+    const currentRed = await findCurrentRed(nginxBackendFilePath);
     const currentBlack = getAlternateEnv(currentRed);
     const blackContainerName = `backend-${currentBlack}`;
 
